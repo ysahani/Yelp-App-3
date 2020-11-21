@@ -1,0 +1,18 @@
+.aTitle {
+    text-align: center;
+    color:#d32323;
+}
+
+.details {
+    text-align: center;
+}
+
+.aLine {
+    width: 200px;
+}
+
+#registerButton {
+    position: relative;
+    left:800px;
+    bottom:30px
+}

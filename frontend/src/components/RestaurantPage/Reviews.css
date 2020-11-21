@@ -1,0 +1,8 @@
+table, th, td {
+    border: 1px solid black;
+  }
+
+  table {
+      position: relative;
+      left: 300px;
+  }

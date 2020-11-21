@@ -1,0 +1,36 @@
+#header {
+    text-align: center;
+}
+
+#line {
+    width: 50%;
+    background-color: grey;
+}
+#about {
+    margin-top: -30px ;
+    text-align: center;
+}
+
+#aboutName {
+    color: #d32323;
+}
+
+#update {
+    text-align: center;
+    margin-left: -35px;
+}
+
+#events {
+    color: #d32323;
+    text-align: center;
+}
+
+#addEvent {
+    position: relative;
+    left: 180px;
+    bottom: 31px
+}
+
+table.center {
+    margin-left: 255px;
+}
