@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
 import { connect } from 'react-redux';
 import Yelp from '../../download.png';
+import { signUp } from '../../mutations/mutations';
 
 class SignUp extends Component {
   constructor(props) {
@@ -75,18 +77,56 @@ class SignUp extends Component {
          cname: customerName,
        };
        // set the with credentials to true
-       axios.defaults.withCredentials = true;
-       // make a post request with the user data
-       axios.post('http://localhost:3001/user/signup', data)
-         .then((response) => {
-           console.log('Status Code : ', response.status);
-           if (response.status === 200) {
+       //  axios.defaults.withCredentials = true;
+       //  // make a post request with the user data
+       //  axios.post('http://localhost:3001/user/signup', data)
+       //    .then((response) => {
+       //      console.log('Status Code : ', response.status);
+       //      if (response.status === 200) {
+       // this.props.signUserUp();
+       // this.props.history.push('/login');
+       //      } else {
+       //        this.props.dontSignUserUp();
+       //      }
+       //    });
+       if (persona === 'restaurant') {
+         //  console.log(data.rname);
+         this.props.signUp({
+           variables: {
+             name: data.rname,
+             email: data.user,
+             password: data.pass,
+             location: data.loc,
+             persona: data.pers,
+           },
+         }).then((res) => {
+           console.log(res.data.signUp.status);
+           if (res.data.signUp.status === '200') {
              this.props.signUserUp();
              this.props.history.push('/login');
            } else {
              this.props.dontSignUserUp();
            }
          });
+       } else if (persona === 'customer') {
+         this.props.signUp({
+           variables: {
+             name: data.cname,
+             email: data.user,
+             password: data.pass,
+             location: data.loc,
+             persona: data.pers,
+           },
+         }).then((res) => {
+           console.log(res.data.signUp.status);
+           if (res.data.signUp.status === '200') {
+             this.props.signUserUp();
+             this.props.history.push('/login');
+           } else {
+             this.props.dontSignUserUp();
+           }
+         });
+       }
      }
 
      render() {
@@ -174,4 +214,11 @@ const mapDispatchToProps = (dispatch) => ({
   dontSignUserUp: () => { dispatch({ type: 'DONT_SIGNUP_USER' }); },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignUp);
+// export default connect(mapStateToProps, mapDispatchToProps, compose(
+//   graphql(addRestaurantMutation, { name: 'addRestaurantMutation' }),
+// ))(SignUp);
+
+export default compose(
+  graphql(signUp, { name: 'signUp' }),
+  connect(mapStateToProps, mapDispatchToProps),
+)(SignUp);

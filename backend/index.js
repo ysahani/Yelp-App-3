@@ -55,7 +55,7 @@ const Restaurant = require('./routes/Restaurant');
 const Customer = require('./routes/Customer');
 const Images = require('./routes/Images');
 
-app.use('/user', SignUp);
+// app.use('/user', SignUp);
 // app.use('/user', Login);
 // app.use('/restaurant', Restaurant);
 // app.use('/customer', Customer);

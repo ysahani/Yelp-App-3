@@ -1,5 +1,6 @@
 const graphql = require('graphql');
-const { signUp } = require('../routes/SignUp');
+const { signUp } = require('../mutations/SignUp');
+const { loginRestaurant } = require('../mutations/LoginRestaurant');
 
 const {
   GraphQLObjectType,
@@ -53,31 +54,57 @@ const RestaurantType = new GraphQLObjectType({
 //   name: 'RootQueryType',
 //   description: 'Root Query',
 // });
+const StatusType = new GraphQLObjectType({
+  name: 'Status',
+  fields: () => ({
+    status: { type: GraphQLString },
+    content: { type: GraphQLString },
+  }),
+});
+const RootQuery = new GraphQLObjectType({
+  name: 'RootQueryType',
+  fields: {
+    items: {
+      type: new GraphQLList(RestaurantType),
+      resolve(parent, args) {
+        return 1;
+      },
+    },
+  },
+});
 
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
-    addRestaurant: {
-      type: RestaurantType,
+    signUp: {
+      type: StatusType,
       args: {
         name: { type: GraphQLString },
         email: { type: GraphQLString },
         password: { type: GraphQLString },
         location: { type: GraphQLString },
-        timings: { type: GraphQLString },
-        description: { type: GraphQLString },
-        menu: { type: new GraphQLList(RestaurantMenu) },
-        events: { type: new GraphQLList(RestaurantEvents) },
+        persona: { type: GraphQLString },
       },
       async resolve(parent, args) {
         return signUp(args);
+      },
+    },
+
+    loginRestaurant: {
+      type: StatusType,
+      args: {
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return loginRestaurant(args);
       },
     },
   },
 });
 
 const schema = new GraphQLSchema({
-  // query: RootQuery,
+  query: RootQuery,
   mutation: Mutation,
 });
 

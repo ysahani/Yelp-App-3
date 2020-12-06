@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
 import { connect } from 'react-redux';
 import jwtDecode from 'jwt-decode';
 import Yelp from '../../download.png';
+import { loginRestaurant } from '../../mutations/mutations';
+
 // const jwtDecode = require('jwt-decode');
 
 class LogIn extends Component {
@@ -28,6 +32,7 @@ class LogIn extends Component {
       nickname: '',
       phone: '',
       token: '',
+      persona: 'customer',
       // err: true,
     };
   }
@@ -50,7 +55,7 @@ class LogIn extends Component {
     // prevent page from refresh
     e.preventDefault();
 
-    const { username } = this.state;
+    const { username, persona } = this.state;
     const { password } = this.state;
 
     const data = {
@@ -58,74 +63,95 @@ class LogIn extends Component {
       pass: password,
     };
     // set the with credentials to true
-    axios.defaults.withCredentials = true;
-    // make a post request with the user data
-    axios.post('http://localhost:3001/user/login', data)
-      .then((response) => {
-        this.setState({
-          token: response.data,
-        });
-        const { token } = this.state;
-        const decoded = jwtDecode(token.split(' ')[1]);
+    // axios.defaults.withCredentials = true;
+    // // make a post request with the user data
+    // axios.post('http://localhost:3001/user/login', data)
+    //   .then((response) => {
+    //     this.setState({
+    //       token: response.data,
+    //     });
+    //     const { token } = this.state;
+    //     const decoded = jwtDecode(token.split(' ')[1]);
 
-        console.log('THINGG');
-        console.log(decoded.name);
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          this.setState({
-            restaurantName: decoded.name,
-            location: decoded.location,
-          });
-          if (decoded.persona === 'customer') {
-            this.setState({
-              customerName: decoded.cname,
-              yelpingSince: decoded.yelpingSince,
-              thingsILove: decoded.thingsILove,
-              findMeIn: decoded.findMeIn,
-              blogSite: decoded.blogsite,
-              dob: decoded.dob,
-              city: decoded.city,
-              state: decoded.state,
-              country: decoded.country,
-              nickname: decoded.nickname,
-              phone: decoded.phone,
-            });
-            const { customerName } = this.state;
-            const { yelpingSince } = this.state;
-            const { thingsILove } = this.state;
-            const { findMeIn } = this.state;
-            const { blogSite } = this.state;
-            const { dob } = this.state;
-            const { city } = this.state;
-            const { state } = this.state;
-            const { country } = this.state;
-            const { nickname } = this.state;
-            const { phone } = this.state;
-            const persona = 'Customer';
-            this.props.loginCustomer(username, customerName, yelpingSince, thingsILove, findMeIn, blogSite, dob, city, state, country, nickname, phone, persona);
-            this.props.history.push('/customerpage');
-          } else {
-            this.setState({
-              restaurantName: decoded.name,
-              location: decoded.location,
-              description: decoded.description,
-              timings: decoded.timings,
-            });
-            const { restaurantName } = this.state;
-            const { location } = this.state;
-            const { description } = this.state;
-            const { timings } = this.state;
-            const persona = 'Restaurant';
-            this.props.logUserIn(username, restaurantName, location, description, timings, persona);
-          }
+    //     console.log('THINGG');
+    //     console.log(decoded.name);
+    //     console.log('Status Code : ', response.status);
+    //     if (response.status === 200) {
+    //       this.setState({
+    //         restaurantName: decoded.name,
+    //         location: decoded.location,
+    //       });
+    //       if (decoded.persona === 'customer') {
+    //         this.setState({
+    //           customerName: decoded.cname,
+    //           yelpingSince: decoded.yelpingSince,
+    //           thingsILove: decoded.thingsILove,
+    //           findMeIn: decoded.findMeIn,
+    //           blogSite: decoded.blogsite,
+    //           dob: decoded.dob,
+    //           city: decoded.city,
+    //           state: decoded.state,
+    //           country: decoded.country,
+    //           nickname: decoded.nickname,
+    //           phone: decoded.phone,
+    //         });
+    //         const { customerName } = this.state;
+    //         const { yelpingSince } = this.state;
+    //         const { thingsILove } = this.state;
+    //         const { findMeIn } = this.state;
+    //         const { blogSite } = this.state;
+    //         const { dob } = this.state;
+    //         const { city } = this.state;
+    //         const { state } = this.state;
+    //         const { country } = this.state;
+    //         const { nickname } = this.state;
+    //         const { phone } = this.state;
+    //         const persona = 'Customer';
+    //         this.props.loginCustomer(username, customerName, yelpingSince, thingsILove, findMeIn, blogSite, dob, city, state, country, nickname, phone, persona);
+    //         this.props.history.push('/customerpage');
+    //       } else {
+    //         this.setState({
+    //           restaurantName: decoded.name,
+    //           location: decoded.location,
+    //           description: decoded.description,
+    //           timings: decoded.timings,
+    //         });
+    //         const { restaurantName } = this.state;
+    //         const { location } = this.state;
+    //         const { description } = this.state;
+    //         const { timings } = this.state;
+    //         const persona = 'Restaurant';
+    //         this.props.logUserIn(username, restaurantName, location, description, timings, persona);
+    //       }
+    //     } else {
+    //       this.props.dontLogUserIn();
+    //     }
+    //   });
+    if (persona === 'restaurant') {
+      this.props.loginRestaurant({
+        variables: {
+          email: data.user,
+          password: data.pass,
+        },
+      }).then((res) => {
+        if (res.data.loginRestaurant.status === '200') {
+          console.log(res.data.loginRestaurant.content);
+          // this.props.logUserIn(username, restaurantName, location, description, timings, persona);
         } else {
-          this.props.dontLogUserIn();
+          console.log('nope');
         }
       });
+    }
+  }
+
+  handleChange = (e) => {
+    this.setState({
+      persona: e.target.value,
+    });
   }
 
   render() {
-    const { token } = this.state;
+    const { token, persona } = this.state;
     const { err } = this.state;
     if (token.length > 0) {
       localStorage.setItem('token', token);
@@ -149,6 +175,13 @@ class LogIn extends Component {
         <img src={Yelp} alt="" style={{ width: '100px' }} />
         <h2 style={{ color: '#d32323' }}>Log in to Yelp</h2>
         <br />
+        <label htmlFor="persona">
+          Choose a Persona:
+          <select id="persona" onChange={this.handleChange}>
+            <option value="customer">Customer</option>
+            <option value="restaurant">Restaurant</option>
+          </select>
+        </label>
         <form>
           <label htmlFor="fname">
             <input placeholder="Email" type="text" id="email" name="email" onChange={this.handleUsername} />
@@ -197,4 +230,7 @@ const mapDispatchToProps = (dispatch) => ({
   dontLogUserIn: () => { dispatch({ type: 'DONT_LOGIN_USER' }); },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(LogIn);
+export default compose(
+  graphql(loginRestaurant, { name: 'loginRestaurant' }),
+  connect(mapStateToProps, mapDispatchToProps),
+)(LogIn);
