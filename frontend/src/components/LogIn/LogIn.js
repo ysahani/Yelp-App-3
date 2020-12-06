@@ -134,11 +134,13 @@ class LogIn extends Component {
           password: data.pass,
         },
       }).then((res) => {
+        console.log(res.data.loginRestaurant.status);
         if (res.data.loginRestaurant.status === '200') {
-          console.log(res.data.loginRestaurant.content);
-          // this.props.logUserIn(username, restaurantName, location, description, timings, persona);
+          const data = JSON.parse(res.data.loginRestaurant.content);
+          console.log(data);
+          this.props.logUserIn(data.email, data.name, data.location, data.description, data.timings, 'restaurant');
         } else {
-          console.log('nope');
+          console.log('fail login');
         }
       });
     }
