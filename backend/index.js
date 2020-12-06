@@ -1,10 +1,13 @@
 const express = require('express');
+const { graphqlHTTP } = require('express-graphql');
+const mongoose = require('mongoose');
+const schema = require('./schema/schema');
 
 const app = express();
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const { mongoDB, frontendURL } = require('./Utils/config');
 const cors = require('cors');
+const { mongoDB, frontendURL } = require('./Utils/config');
 
 // use cors to allow cross origin resource sharing
 app.use(cors({ origin: frontendURL, credentials: true }));
@@ -30,8 +33,6 @@ app.use((req, res, next) => {
   next();
 });
 
-const mongoose = require('mongoose');
-
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -55,10 +56,15 @@ const Customer = require('./routes/Customer');
 const Images = require('./routes/Images');
 
 app.use('/user', SignUp);
-app.use('/user', Login);
-app.use('/restaurant', Restaurant);
-app.use('/customer', Customer);
-app.use('/images', Images);
+// app.use('/user', Login);
+// app.use('/restaurant', Restaurant);
+// app.use('/customer', Customer);
+// app.use('/images', Images);
+
+app.use('/graphql', graphqlHTTP({
+  schema,
+  graphiql: true,
+}));
 
 // start your server on port 3001
 app.listen(3001, () => console.log('Server Listening on port 3001'));
