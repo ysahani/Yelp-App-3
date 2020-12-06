@@ -1,6 +1,5 @@
 import { gql } from 'apollo-boost';
 
-// eslint-disable-next-line import/prefer-default-export
 const signUp = gql`
     mutation ($name: String, $email: String, $password: String, $location: String, $persona: String){
         signUp(name: $name, email: $email, password: $password, location: $location, persona: $persona ){
@@ -18,4 +17,13 @@ const loginRestaurant = gql`
     }
 `;
 
-export { signUp, loginRestaurant };
+const updateRestaurant = gql`
+    mutation ($email: String, $name: String, $location: String, $description: String, $timings: String){
+        updateRestaurant(email: $email, name: $name, location: $location, description: $description, timings: $timings){
+            status
+            content
+        }
+    }
+`;
+
+export { signUp, loginRestaurant, updateRestaurant };

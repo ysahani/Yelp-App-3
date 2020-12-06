@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
 import axios from 'axios';
+import { updateRestaurant } from '../../mutations/mutations';
 
 class UpdateProfile extends Component {
   constructor(props) {
@@ -59,16 +62,28 @@ class UpdateProfile extends Component {
       time: timings,
     };
     this.props.updateProfile(email, name, location, description, timings);
-    // make a post request with the user data
-    axios.post('http://localhost:3001/restaurant/updateprofile', data)
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          this.props.history.push('/restaurantpage');
-        } else {
-          console.log('Post error in update restaurant!');
-        }
-      });
+    // // make a post request with the user data
+    // axios.post('http://localhost:3001/restaurant/updateprofile', data)
+    //   .then((response) => {
+    //     console.log('Status Code : ', response.status);
+    //     if (response.status === 200) {
+    //       this.props.history.push('/restaurantpage');
+    //     } else {
+    //       console.log('Post error in update restaurant!');
+    //     }
+    //   });
+    this.props.updateRestaurant({
+      variables: {
+        email: data.emailid,
+        name: data.rname,
+        location: data.loc,
+        description: data.desc,
+        timings: data.time,
+      },
+    }).then((res) => {
+      console.log(res.data);
+      this.props.history.push('/restaurantpage');
+    });
   }
 
   render() {
@@ -123,4 +138,7 @@ const mapDispatchToProps = (dispatch) => ({
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(UpdateProfile);
+export default compose(
+  graphql(updateRestaurant, { name: 'updateRestaurant' }),
+  connect(mapStateToProps, mapDispatchToProps),
+)(UpdateProfile);
