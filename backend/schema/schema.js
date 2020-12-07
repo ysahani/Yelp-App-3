@@ -2,6 +2,7 @@ const graphql = require('graphql');
 const { signUp } = require('../mutations/SignUp');
 const { loginRestaurant } = require('../mutations/LoginRestaurant');
 const { updateRestaurant, addMenuItem } = require('../mutations/Restaurant');
+const Restaurants = require('../Models/RestaurantModel');
 
 const {
   GraphQLObjectType,
@@ -11,17 +12,29 @@ const {
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
+  GraphQLInputObjectType,
 } = graphql;
 
-const RestaurantMenu = new GraphQLObjectType({
-  name: 'RestaurantMenu',
+const RestaurantMenuItems = new GraphQLObjectType({
+  name: 'RestaurantMenuItems',
   fields: () => ({
-    dishName: { type: GraphQLString },
+    dish_name: { type: GraphQLString },
     ingredients: { type: GraphQLString },
     price: { type: GraphQLString },
     category: { type: GraphQLString },
     description: { type: GraphQLString },
-    url: { type: GraphQLString },
+  }),
+});
+
+const RestaurantMenu = new GraphQLObjectType({
+  name: 'RestaurantMenu',
+  fields: () => ({
+    menu: {
+      type: new GraphQLList(RestaurantMenuItems),
+      resolve(parent, args) {
+        return parent.items;
+      },
+    },
   }),
 });
 
@@ -65,10 +78,15 @@ const StatusType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
-    items: {
-      type: new GraphQLList(RestaurantType),
-      resolve(parent, args) {
-        return 1;
+    menu: {
+      type: new GraphQLList(RestaurantMenuItems),
+      args: { name: { type: GraphQLString } },
+      async resolve(parent, args) {
+        const menu = await Restaurants.find({ name: args.name });
+        if (menu) {
+          console.log(menu[0].menu);
+          return menu[0].menu;
+        }
       },
     },
   },
