@@ -26,4 +26,14 @@ const updateRestaurant = gql`
     }
 `;
 
-export { signUp, loginRestaurant, updateRestaurant };
+const addMenuItem = gql`
+    mutation ($name: String, $dish_name: String, $ingredients: String, $price: String, $category: String, $description: String){
+        addMenuItem(name: $name, dish_name: $dish_name, ingredients: $ingredients, price: $price, category: $category, description: $description){
+            status
+        }
+    }
+`;
+
+export {
+  signUp, loginRestaurant, updateRestaurant, addMenuItem,
+};

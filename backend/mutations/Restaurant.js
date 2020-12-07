@@ -24,4 +24,35 @@ const updateRestaurant = async (args) => {
   return response;
 };
 
-exports.updateRestaurant = updateRestaurant;
+const addMenuItem = async (args) => {
+  const response = {};
+  const myquery = { name: args.name };
+  const newvalues = {
+    $push: {
+      menu: {
+        dish_name: args.dish_name, ingredients: args.ingredients, price: args.price, category: args.category, description: args.description,
+      },
+    },
+  };
+  Restaurants.updateOne(myquery, newvalues, (error, restaurant) => {
+    if (error) {
+      console.log(error);
+      response.status = 401;
+      return response;
+    }
+    if (restaurant) {
+      console.log('Added menu item!');
+      response.status = 200;
+      return response;
+    }
+    return response;
+  });
+
+  return response;
+};
+
+module.exports = {
+  updateRestaurant,
+  addMenuItem,
+};
+// exports.updateRestaurant = updateRestaurant;

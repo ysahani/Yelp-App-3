@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import axios from 'axios';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
+import { addMenuItem } from '../../mutations/mutations';
 
 class AddMenuItem extends Component {
   constructor(props) {
@@ -60,15 +62,33 @@ class AddMenuItem extends Component {
     };
 
     e.preventDefault();
-    axios.post('http://localhost:3001/restaurant/addmenuitem', data)
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          this.props.history.push('/menu');
-        } else {
-          console.log('error in add menu item');
-        }
-      });
+    // axios.post('http://localhost:3001/restaurant/addmenuitem', data)
+    //   .then((response) => {
+    //     console.log('Status Code : ', response.status);
+    //     if (response.status === 200) {
+    //       this.props.history.push('/menu');
+    //     } else {
+    //       console.log('error in add menu item');
+    //     }
+    //   });
+
+    this.props.addMenuItem({
+      variables: {
+        name: data.rname,
+        dish_name: data.mname,
+        ingredients: data.mingredients,
+        price: data.mprice,
+        category: data.mcategory,
+        description: data.mcategory,
+      },
+    }).then((res) => {
+      console.log(res);
+      // if (res.data.addMenuItem.status === '200') {
+      this.props.history.push('/menu');
+      // } else {
+      //   console.log('fail added menu item');
+      // }
+    });
   }
 
   render() {
@@ -121,4 +141,7 @@ const mapStateToProps = (state) => ({
   rname: state.name,
 });
 
-export default connect(mapStateToProps)(AddMenuItem);
+export default compose(
+  graphql(addMenuItem, { name: 'addMenuItem' }),
+  connect(mapStateToProps),
+)(AddMenuItem);
