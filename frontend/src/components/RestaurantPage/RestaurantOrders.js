@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
+import { orders, filterOrders } from '../../queries/queries';
 
 class RestaurantOrders extends Component {
   constructor(props) {
@@ -87,6 +90,116 @@ class RestaurantOrders extends Component {
           console.log('Post error in restaurant orders!');
         }
       });
+  }
+
+  displayOrders() {
+    const data = this.props.data;
+    console.log('this.props');
+    console.log(this.props);
+    if (data.loading) {
+      return (<div>Loading orders...</div>);
+    }
+
+    const showItems = (aption, name, option) => {
+      if (aption === 'Delivery' && option === 'Order Recieved') {
+        return (
+          <select id={name} name={name} onChange={this.handleChange}>
+            <option value="Order Recieved" selected>Order Recieved</option>
+            <option value="Preparing">Preparing</option>
+            <option value="On the Way">On the Way</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        );
+      } if (aption === 'Delivery' && option === 'Preparing') {
+        return (
+          <select id={name} name={name} onChange={this.handleChange}>
+            <option value="Order Recieved">Order Recieved</option>
+            <option value="Preparing" selected>Preparing</option>
+            <option value="On the Way">On the Way</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        );
+      } if (aption === 'Delivery' && option === 'On the Way') {
+        return (
+          <select id={name} name={name} onChange={this.handleChange}>
+            <option value="Order Recieved">Order Recieved</option>
+            <option value="Preparing">Preparing</option>
+            <option value="On the Way" selected>On the Way</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        );
+      } if (aption === 'Delivery' && option === 'Delivered') {
+        return (
+          <select id={name} name={name} onChange={this.handleChange}>
+            <option value="Order Recieved">Order Recieved</option>
+            <option value="Preparing">Preparing</option>
+            <option value="On the Way">On the Way</option>
+            <option value="Delivered" selected>Delivered</option>
+          </select>
+        );
+      } if (aption === 'Pickup' && option === 'Order Recieved') {
+        return (
+          <select id={name} name={name} onChange={this.handleChange}>
+            <option value="Order Recieved">Order Recieved</option>
+            <option value="Preparing">Preparing</option>
+            <option value="Pick Up Ready">Pick Up Ready</option>
+            <option value="Picked Up">Picked Up</option>
+          </select>
+        );
+      } if (aption === 'Pickup' && option === 'Preparing') {
+        return (
+          <select id={name} name={name} onChange={this.handleChange}>
+            <option value="Order Recieved">Order Recieved</option>
+            <option value="Preparing" selected>Preparing</option>
+            <option value="Pick Up Ready">Pick Up Ready</option>
+            <option value="Picked Up">Picked Up</option>
+          </select>
+        );
+      } if (aption === 'Pickup' && option === 'Pick Up Ready') {
+        return (
+          <select id={name} name={name} onChange={this.handleChange}>
+            <option value="Order Recieved">Order Recieved</option>
+            <option value="Preparing">Preparing</option>
+            <option value="Pick Up Ready" selected>Pick Up Ready</option>
+            <option value="Picked Up">Picked Up</option>
+          </select>
+        );
+      } if (aption === 'Pickup' && option === 'Picked Up') {
+        return (
+          <select id={name} name={name} onChange={this.handleChange}>
+            <option value="Order Recieved">Order Recieved</option>
+            <option value="Preparing">Preparing</option>
+            <option value="Pick Up Ready">Pick Up Ready</option>
+            <option value="Picked Up" selected>Picked Up</option>
+          </select>
+        );
+      } if (aption === 'Pickup' && option === 'Cancel') {
+        return (
+          <p>Cancelled</p>
+        );
+      } if (aption === 'Delivery' && option === 'Cancel') {
+        return (
+          <p>Cancelled</p>
+        );
+      }
+    };
+    console.log(data.orders);
+    return data.orders.map((item) => (
+      <tr>
+        <td>
+          <Link to="/viewcustomer" onClick={this.clickLin}>{item.cName}</Link>
+        </td>
+        <td>
+          {item.real_datetime}
+        </td>
+        <td>
+          {item.items}
+        </td>
+        <td id={item.items}>
+          {showItems(item.delivery_option, item.items, item.order_option)}
+        </td>
+      </tr>
+    ));
   }
 
   render() {
@@ -214,7 +327,7 @@ class RestaurantOrders extends Component {
             </select>
           </label>
           <table style={{ position: 'relative', left: '450px' }}>
-            { contents }
+            { this.displayOrders() }
           </table>
         </div>
       </div>
@@ -235,4 +348,12 @@ const mapDispatchToProps = (dispatch) => ({
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(RestaurantOrders);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  graphql(orders, {
+    options: (props) => ({ variables: { name: props.name } }),
+  }),
+  // graphql(filterOrders, {
+  //   options: (state) => ({ variables: { order_option: state.option } }),
+  // }),
+)(RestaurantOrders);

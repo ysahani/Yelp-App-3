@@ -1,10 +1,12 @@
 const graphql = require('graphql');
+const { argsToArgsConfig } = require('graphql/type/definition');
 const { signUp } = require('../mutations/SignUp');
 const { loginRestaurant } = require('../mutations/LoginRestaurant');
 const { loginCust } = require('../mutations/LoginCustomer');
 const { updateRestaurant, addMenuItem } = require('../mutations/Restaurant');
 const { updateCust } = require('../mutations/Customer');
 const Restaurants = require('../Models/RestaurantModel');
+const Customers = require('../Models/CustomerModel');
 
 const {
   GraphQLObjectType,
@@ -16,6 +18,19 @@ const {
   GraphQLNonNull,
   GraphQLInputObjectType,
 } = graphql;
+
+const CustomerOrder = new GraphQLObjectType({
+  name: 'CustomerOrder',
+  fields: () => ({
+    items: { type: GraphQLString },
+    r_name: { type: GraphQLString },
+    date_time: { type: GraphQLString },
+    delivery_option: { type: GraphQLString },
+    real_datetime: { type: GraphQLString },
+    order_option: { type: GraphQLString },
+    cName: { type: GraphQLString },
+  }),
+});
 
 const RestaurantMenuItems = new GraphQLObjectType({
   name: 'RestaurantMenuItems',
@@ -88,6 +103,57 @@ const RootQuery = new GraphQLObjectType({
         if (menu) {
           console.log(menu[0].menu);
           return menu[0].menu;
+        }
+      },
+    },
+
+    orders: {
+      type: new GraphQLList(CustomerOrder),
+      args: { name: { type: GraphQLString } },
+      async resolve(parent, args) {
+        const order = await Customers.find({ 'orders.r_name': args.name });
+        if (order) {
+          const data = [];
+          order.forEach((element) => {
+            // console.log(element);
+            element.orders.forEach((thing) => {
+              // console.log(thing);
+              data.push(thing);
+            });
+          });
+          console.log(data);
+          return data;
+        }
+      },
+    },
+
+    filterOrders: {
+      type: new GraphQLList(CustomerOrder),
+      args: { order_option: { type: GraphQLString } },
+      async resolve(parent, args) {
+        let search;
+        if (args.order_option === 'Delivered Orders') {
+          search = 'Delivered';
+        } else if (args.order_option === 'New Orders') {
+          search = 'Order Recieved';
+        } else if (args.order_option === 'Cancelled Orders') {
+          search = 'Cancel';
+        }
+        let filterOrder = await Customers.find({ 'orders.order_option': search });
+        if (args.order_option === 'All orders') {
+          filterOrder = await Customers.find({});
+        }
+        if (filterOrder) {
+          const data = [];
+          filterOrder.forEach((element) => {
+            // console.log(element);
+            element.orders.forEach((thing) => {
+              // console.log(thing);
+              data.push(thing);
+            });
+          });
+          console.log(data);
+          return data;
         }
       },
     },

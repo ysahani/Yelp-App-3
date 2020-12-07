@@ -50,7 +50,7 @@ class Navbar extends Component {
         </ul>
       );
     }
-    if (this.props.persona === 'Customer') {
+    if (this.props.persona === 'customer') {
       contents = (
         <li><Link style={{ color: 'white' }} to="/customerevents">Customer Events</Link></li>
       );
@@ -60,7 +60,7 @@ class Navbar extends Component {
       home = (
         <li><Link style={{ color: 'white' }} to="/customerpage">Home</Link></li>
       );
-    } else if (this.props.persona === 'Restaurant') {
+    } else if (this.props.persona === 'restaurant') {
       contents = (
         <li><Link style={{ color: 'white' }} to="/restaurantevents">Restaurant Events</Link></li>
       );

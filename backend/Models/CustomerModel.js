@@ -20,6 +20,7 @@ const orders = new Schema({
   delivery_option: String,
   order_option: String,
   real_datetime: String,
+  cName: String,
 });
 
 const customerSchema = new Schema({

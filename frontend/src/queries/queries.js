@@ -12,4 +12,32 @@ const menu = gql`
     }
 `;
 
-export { menu };
+const orders = gql`
+    query($name: String) {
+        orders(name: $name) {
+            items
+            r_name
+            date_time
+            delivery_option
+            real_datetime
+            order_option
+            cName
+        }
+    }
+`;
+
+const filterOrders = gql`
+    query($name: String) {
+        filterOrders(name: $name) {
+            items
+            r_name
+            date_time
+            delivery_option
+            real_datetime
+            order_option
+            cName
+        }
+    }
+`;
+
+export { menu, orders, filterOrders };
