@@ -3,6 +3,7 @@ const { signUp } = require('../mutations/SignUp');
 const { loginRestaurant } = require('../mutations/LoginRestaurant');
 const { loginCust } = require('../mutations/LoginCustomer');
 const { updateRestaurant, addMenuItem } = require('../mutations/Restaurant');
+const { updateCust } = require('../mutations/Customer');
 const Restaurants = require('../Models/RestaurantModel');
 
 const {
@@ -143,6 +144,27 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return updateRestaurant(args);
+      },
+    },
+
+    updateCust: {
+      type: StatusType,
+      args: {
+        email: { type: GraphQLString },
+        name: { type: GraphQLString },
+        yelpingSince: { type: GraphQLString },
+        thingsILove: { type: GraphQLString },
+        findMeIn: { type: GraphQLString },
+        blogsite: { type: GraphQLString },
+        dob: { type: GraphQLString },
+        city: { type: GraphQLString },
+        state: { type: GraphQLString },
+        country: { type: GraphQLString },
+        nickname: { type: GraphQLString },
+        phone: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return updateCust(args);
       },
     },
 

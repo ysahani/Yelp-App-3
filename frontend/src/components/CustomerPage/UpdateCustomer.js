@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
+import { updateCust } from '../../mutations/mutations';
 
 class UpdateCustomer extends Component {
   constructor(props) {
@@ -134,6 +137,27 @@ class UpdateCustomer extends Component {
           console.log('Post error in update customer!');
         }
       });
+
+    this.props.updateCust({
+      variables: {
+        email: data.email,
+        name: data.fullname,
+        yelpingSince: data.yelpSince,
+        thingsILove: data.love,
+        findMeIn: data.findIn,
+        blogsite: data.weblog,
+        dob: data.dob,
+        city: data.acity,
+        state: data.astate,
+        country: data.acountry,
+        nickname: data.nname,
+        phone: data.aPhone,
+      },
+    }).then((res) => {
+      console.log(res);
+      this.props.updateCustomer(yelpingSince, iLove, findMeIn, blogsite, name, dateob, city, state, country, nickname, emailid, phone);
+      this.props.history.push('/customerpage');
+    });
   }
 
   render() {
@@ -229,4 +253,8 @@ const mapDispatchToProps = (dispatch) => ({
     });
   },
 });
-export default connect(mapStateToProps, mapDispatchToProps)(UpdateCustomer);
+
+export default compose(
+  graphql(updateCust, { name: 'updateCust' }),
+  connect(mapStateToProps, mapDispatchToProps),
+)(UpdateCustomer);

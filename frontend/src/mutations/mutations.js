@@ -26,6 +26,15 @@ const loginCust = gql`
     }
 `;
 
+const updateCust = gql`
+    mutation ($email: String, $name: String, $yelpingSince: String, $thingsILove: String, $findMeIn: String, $blogsite: String, $dob: String, $city: String, $state: String, $country: String, $nickname: String, $phone: String){
+        updateCust(email: $email, name: $name, yelpingSince: $yelpingSince, thingsILove: $thingsILove, findMeIn: $findMeIn, blogsite: $blogsite, dob: $dob, city: $city, state: $state, country: $country, nickname: $nickname, phone: $phone){
+            status
+            content
+        }
+    }
+`;
+
 const updateRestaurant = gql`
     mutation ($email: String, $name: String, $location: String, $description: String, $timings: String){
         updateRestaurant(email: $email, name: $name, location: $location, description: $description, timings: $timings){
@@ -44,5 +53,5 @@ const addMenuItem = gql`
 `;
 
 export {
-  signUp, loginRestaurant, updateRestaurant, addMenuItem, loginCust,
+  signUp, loginRestaurant, updateRestaurant, addMenuItem, loginCust, updateCust,
 };
