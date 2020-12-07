@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import jwtDecode from 'jwt-decode';
 import Yelp from '../../download.png';
 import { loginRestaurant } from '../../mutations/mutations';
+import { loginCust } from '../../mutations/mutations';
 
 // const jwtDecode = require('jwt-decode');
 
@@ -144,6 +145,20 @@ class LogIn extends Component {
         }
       });
     }
+
+    if (persona === 'customer') {
+      this.props.loginCust({
+        variables: {
+          email: data.user,
+          password: data.pass,
+        },
+      }).then((res) => {
+        const decode = JSON.parse(res.data.loginCust.content);
+        console.log(decode);
+        this.props.loginCustomer(decode.email, decode.name, decode.yelpingSince, decode.thingsILove, decode.findMeIn, decode.blogsite, decode.dob, decode.city, decode.state, decode.country, decode.nickname, decode.phone, 'customer');
+        this.props.history.push('/customerpage');
+      });
+    }
   }
 
   handleChange = (e) => {
@@ -234,5 +249,6 @@ const mapDispatchToProps = (dispatch) => ({
 
 export default compose(
   graphql(loginRestaurant, { name: 'loginRestaurant' }),
+  graphql(loginCust, { name: 'loginCust' }),
   connect(mapStateToProps, mapDispatchToProps),
 )(LogIn);

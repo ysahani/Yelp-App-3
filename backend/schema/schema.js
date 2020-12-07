@@ -1,6 +1,7 @@
 const graphql = require('graphql');
 const { signUp } = require('../mutations/SignUp');
 const { loginRestaurant } = require('../mutations/LoginRestaurant');
+const { loginCust } = require('../mutations/LoginCustomer');
 const { updateRestaurant, addMenuItem } = require('../mutations/Restaurant');
 const Restaurants = require('../Models/RestaurantModel');
 
@@ -117,6 +118,17 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return loginRestaurant(args);
+      },
+    },
+
+    loginCust: {
+      type: StatusType,
+      args: {
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return loginCust(args);
       },
     },
 

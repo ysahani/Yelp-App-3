@@ -17,6 +17,15 @@ const loginRestaurant = gql`
     }
 `;
 
+const loginCust = gql`
+    mutation ($email: String, $password: String){
+        loginCust(email: $email, password: $password){
+            status
+            content
+        }
+    }
+`;
+
 const updateRestaurant = gql`
     mutation ($email: String, $name: String, $location: String, $description: String, $timings: String){
         updateRestaurant(email: $email, name: $name, location: $location, description: $description, timings: $timings){
@@ -35,5 +44,5 @@ const addMenuItem = gql`
 `;
 
 export {
-  signUp, loginRestaurant, updateRestaurant, addMenuItem,
+  signUp, loginRestaurant, updateRestaurant, addMenuItem, loginCust,
 };
