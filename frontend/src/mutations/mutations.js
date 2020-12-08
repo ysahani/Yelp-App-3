@@ -70,6 +70,15 @@ const placeOrder = gql`
     }
 `;
 
+const updateOrder = gql`
+    mutation ($items: String, $order_option: String){
+        placeOrder(items: $cnitemsame, order_options: $order_option){
+            status
+            content
+        }
+    }
+`;
+
 export {
-  signUp, loginRestaurant, updateRestaurant, addMenuItem, loginCust, updateCust, searchRestaurant, placeOrder,
+  signUp, loginRestaurant, updateRestaurant, addMenuItem, loginCust, updateCust, searchRestaurant, placeOrder, updateOrder,
 };

@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { flowRight as compose } from 'lodash';
 import { graphql } from 'react-apollo';
 import { orders, filterOrders } from '../../queries/queries';
+import { updateOrder } from '../../mutations/mutations';
 
 class RestaurantOrders extends Component {
   constructor(props) {
@@ -54,15 +55,24 @@ class RestaurantOrders extends Component {
       order_option: val,
       items: item,
     };
-    axios.post('http://localhost:3001/restaurant/updateorder', data)
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          console.log('Post success in restaurant orders!');
-        } else {
-          console.log('Post error in restaurant orders!');
-        }
-      });
+    this.props.updateOrder({
+      variables: {
+        order_option: data.order_option,
+        items: data.items,
+      },
+    }).then((res) => {
+      console.log(res);
+    });
+    // this.props.data.filterOrders;
+    // axios.post('http://localhost:3001/restaurant/updateorder', data)
+    //   .then((response) => {
+    //     console.log('Status Code : ', response.status);
+    //     if (response.status === 200) {
+    //       console.log('Post success in restaurant orders!');
+    //     } else {
+    //       console.log('Post error in restaurant orders!');
+    //     }
+    //   });
   }
 
   clickLin = (e) => {
@@ -78,18 +88,18 @@ class RestaurantOrders extends Component {
       rName: name,
       filter: val,
     };
-    axios.post('http://localhost:3001/restaurant/filterorder', data)
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          this.setState({
-            res: response.data,
-          });
-          console.log('Post success in restaurant orders!');
-        } else {
-          console.log('Post error in restaurant orders!');
-        }
-      });
+    // axios.post('http://localhost:3001/restaurant/filterorder', data)
+    //   .then((response) => {
+    //     console.log('Status Code : ', response.status);
+    //     if (response.status === 200) {
+    //       this.setState({
+    //         res: response.data,
+    //       });
+    //       console.log('Post success in restaurant orders!');
+    //     } else {
+    //       console.log('Post error in restaurant orders!');
+    //     }
+    //   });
   }
 
   displayOrders() {
@@ -350,6 +360,7 @@ const mapDispatchToProps = (dispatch) => ({
 
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
+  graphql(updateOrder, { name: 'updateOrder' }),
   graphql(orders, {
     options: (props) => ({ variables: { name: props.name } }),
   }),

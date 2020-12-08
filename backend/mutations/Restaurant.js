@@ -1,4 +1,5 @@
 const Restaurants = require('../Models/RestaurantModel');
+const Customers = require('../Models/CustomerModel');
 
 const updateRestaurant = async (args) => {
   const response = {};
@@ -85,9 +86,54 @@ const searchRestaurant = async (args) => {
   return response;
 };
 
+const updateOrder = async (args) => {
+  const response = {};
+  // await Customers.updateOne({ 'orders.items': args.items }, { $set: { 'orders.$.order_option': args.order_option } }).exec((error, customer) => {
+  //   if (error) {
+  //     console.log(error);
+  //     response.status = 202;
+  //     return response;
+  //   }
+  //   console.log(customer);
+  //   response.status = 200;
+  //   return response;
+  // });
+  let data = await Customers.updateOne({ 'orders.items': args.items }, { $set: { 'orders.$.order_option': args.order_option } });
+  if (data) {
+    response.status = 200;
+    return response;
+  }
+  return response;
+};
+
+const makeReview = async (args) => {
+  const response = {};
+  const myquery = { email: args.email };
+  const newvalues = {
+    $push: {
+      reviews: {
+        date: args.date, rating: args.rating, comments: args.comments, r_name: args.r_name,
+      },
+    },
+  };
+  await Customers.updateOne(myquery, newvalues, (error, restaurant) => {
+    if (error) {
+      console.log(error);
+      response.status = 202;
+    }
+    if (restaurant) {
+      console.log('Added customer review!');
+      response.status = 200;
+    }
+  });
+  return response;
+};
+
 module.exports = {
   updateRestaurant,
   addMenuItem,
   searchRestaurant,
+  updateOrder,
+  makeReview,
 };
 // exports.updateRestaurant = updateRestaurant;

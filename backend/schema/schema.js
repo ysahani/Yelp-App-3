@@ -3,7 +3,9 @@ const { argsToArgsConfig } = require('graphql/type/definition');
 const { signUp } = require('../mutations/SignUp');
 const { loginRestaurant } = require('../mutations/LoginRestaurant');
 const { loginCust } = require('../mutations/LoginCustomer');
-const { updateRestaurant, addMenuItem, searchRestaurant } = require('../mutations/Restaurant');
+const {
+  updateRestaurant, addMenuItem, searchRestaurant, updateOrder, makeReview,
+} = require('../mutations/Restaurant');
 const { updateCust, placeOrder } = require('../mutations/Customer');
 const Restaurants = require('../Models/RestaurantModel');
 const Customers = require('../Models/CustomerModel');
@@ -82,6 +84,16 @@ const RestaurantType = new GraphQLObjectType({
   }),
 });
 
+const Reviews = new GraphQLObjectType({
+  name: 'Restaurant',
+  fields: () => ({
+    date: { type: GraphQLString },
+    rating: { type: GraphQLString },
+    comments: { type: GraphQLString },
+    r_name: { type: GraphQLString },
+  }),
+});
+
 // const RootQuery = new GraphQLObjectType({
 //   name: 'RootQueryType',
 //   description: 'Root Query',
@@ -142,6 +154,25 @@ const RootQuery = new GraphQLObjectType({
             });
           });
           // console.log(data);
+          return data;
+        }
+      },
+    },
+
+    reviews: {
+      type: new GraphQLList(Reviews),
+      args: { r_name: { type: GraphQLString } },
+      async resolve(parent, args) {
+        const review = await Customers.find({ 'reviews.r_name': args.r_name });
+        const data = [];
+        if (review) {
+          review.forEach((element) => {
+            element.reviews.forEach((thing) => {
+              // console.log(thing);
+              data.push(thing);
+            });
+          });
+          console.log(data);
           return data;
         }
       },
@@ -293,6 +324,31 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return placeOrder(args);
+      },
+    },
+
+    updateOrder: {
+      type: StatusType,
+      args: {
+        items: { type: GraphQLString },
+        order_option: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return updateOrder(args);
+      },
+    },
+
+    makeReview: {
+      type: StatusType,
+      args: {
+        email: { type: GraphQLString },
+        date: { type: GraphQLString },
+        rating: { type: GraphQLString },
+        comments: { type: GraphQLString },
+        r_name: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return makeReview(args);
       },
     },
 

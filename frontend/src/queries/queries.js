@@ -54,6 +54,17 @@ const customerOrders = gql`
     }
 `;
 
+const reviews = gql`
+    query($r_name: String) {
+        reviews(r_name: $r_name) {
+            date
+            rating
+            comments
+            r_name
+        }
+    }
+`;
+
 export {
-  menu, orders, filterOrders, customerOrders,
+  menu, orders, filterOrders, customerOrders, reviews,
 };

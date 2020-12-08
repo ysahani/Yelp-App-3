@@ -147,10 +147,21 @@ class CustomerOrders extends Component {
               <option value="Picked Up">Picked Up</option>
             </select>
           </label>
+          <label htmlFor="filterorders">
+            Filter Time:
+            <select onChange={this.handleFilter}>
+              <option value="Order Recieved">Ascending</option>
+              <option value="Preparing">Descending</option>
+            </select>
+          </label>
           <table style={{
             backgroundColor: '#D2691E', color: 'white', position: 'relative', left: '450px',
           }}
           >
+            <th>Item</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Cancel</th>
             { this.displayOrders() }
           </table>
         </div>

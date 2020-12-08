@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
+import { reviews } from '../../queries/queries';
 import './Reviews.css';
 
 class Reviews extends Component {
@@ -14,6 +17,7 @@ class Reviews extends Component {
   }
 
   componentDidMount() {
+    console.log(this.props);
     const { rname } = this.state;
     const data = {
       r_name: rname,
@@ -30,6 +34,29 @@ class Reviews extends Component {
           console.log('Post error in reviews!');
         }
       });
+  }
+
+  displayReviews() {
+    const { data } = this.props;
+    if (data.loading) {
+      return (<div>Loading menu...</div>);
+    }
+    return data.reviews.map((item) => (
+      <tr>
+        <td>
+          {item.customer_name}
+        </td>
+        <td>
+          {item.date}
+        </td>
+        <td>
+          {item.rating}
+        </td>
+        <td>
+          {item.comments}
+        </td>
+      </tr>
+    ));
   }
 
   render() {
@@ -69,7 +96,7 @@ class Reviews extends Component {
           </ul>
         </div>
         <table>
-          {contents}
+          {this.displayReviews()}
         </table>
       </div>
     );
@@ -84,4 +111,9 @@ const mapStateToProps = (state) => ({
   description: state.description,
 });
 
-export default connect(mapStateToProps)(Reviews);
+export default compose(
+  connect(mapStateToProps),
+  graphql(reviews, {
+    options: (props) => ({ variables: { r_name: props.rname } }),
+  }),
+)(Reviews);
