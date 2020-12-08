@@ -3,7 +3,7 @@ const { argsToArgsConfig } = require('graphql/type/definition');
 const { signUp } = require('../mutations/SignUp');
 const { loginRestaurant } = require('../mutations/LoginRestaurant');
 const { loginCust } = require('../mutations/LoginCustomer');
-const { updateRestaurant, addMenuItem } = require('../mutations/Restaurant');
+const { updateRestaurant, addMenuItem, searchRestaurant } = require('../mutations/Restaurant');
 const { updateCust } = require('../mutations/Customer');
 const Restaurants = require('../Models/RestaurantModel');
 const Customers = require('../Models/CustomerModel');
@@ -76,6 +76,7 @@ const RestaurantType = new GraphQLObjectType({
     location: { type: GraphQLString },
     timings: { type: GraphQLString },
     description: { type: GraphQLString },
+    delivery_method: { type: GraphQLString },
     menu: { type: new GraphQLList(RestaurantMenu) },
     events: { type: new GraphQLList(RestaurantEvents) },
   }),
@@ -157,6 +158,7 @@ const RootQuery = new GraphQLObjectType({
         }
       },
     },
+
   },
 });
 
@@ -246,6 +248,17 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return addMenuItem(args);
+      },
+    },
+
+    searchRestaurant: {
+      type: StatusType,
+      args: {
+        search: { type: GraphQLString },
+        filter: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return searchRestaurant(args);
       },
     },
   },

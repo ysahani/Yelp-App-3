@@ -16,6 +16,7 @@ class ViewRestaurant extends Component {
   }
 
   componentDidMount() {
+    console.log(this.props.results.content);
     const cityAndState = 'Hayward, CA';
     let mapz = fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?address=+${
@@ -62,12 +63,12 @@ class ViewRestaurant extends Component {
   render() {
     const { lat } = this.state;
     const { lon } = this.state;
-    const contents = this.state.res.map((item) => (
-      <div>
-        <p><Link to="/restaurantprof" onClick={this.click}>{item}</Link></p>
-        <hr className="line" />
-      </div>
-    ));
+    // const contents = this.state.res.map((item) => (
+    //   <div>
+    //     <p><Link to="/restaurantprof" onClick={this.click}>{item}</Link></p>
+    //     <hr className="line" />
+    //   </div>
+    // ));
     return (
       <div>
         <div id="header">
@@ -87,7 +88,7 @@ class ViewRestaurant extends Component {
           <br />
         </div>
         <div style={{ textAlign: 'center' }}>
-          {contents}
+        <p><Link to="/restaurantprof" onClick={this.click}>{this.props.results.content}</Link></p>
         </div>
         <Map
           google={this.props.google}

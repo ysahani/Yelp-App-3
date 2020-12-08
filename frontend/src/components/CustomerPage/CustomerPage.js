@@ -2,17 +2,22 @@ import React, { Component } from 'react';
 import ImageUploader from 'react-images-upload';
 import { Map, GoogleApiWrapper } from 'google-maps-react';
 import axios from 'axios';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import './CustomerPage.css';
+import { searchRestaurant } from '../../mutations/mutations';
 
 class CustomerPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      val: '',
       res: [],
       pictures: [],
       url: '',
+      option: 'Curbside Pickup',
     };
     this.onDrop = this.onDrop.bind(this);
     this.uploadImages = this.uploadImages.bind(this);
@@ -83,43 +88,68 @@ class CustomerPage extends Component {
   }
 
   search = (e) => {
+    this.setState({
+      val: document.getElementById('searchh').value,
+    });
+    const { option } = this.state;
     e.preventDefault();
     const data = {
       val: document.getElementById('searchh').value,
     };
-    axios.defaults.headers.common.authorization = localStorage.getItem('token');
-    axios.post('http://localhost:3001/customer/customerpage', data)
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          this.setState({
-            res: response.data,
-          });
-          const { res } = this.state;
-          this.props.updateResults(res);
-          this.props.history.push('/viewrestaurant');
-          console.log('Post success in customer page!');
-        } else {
-          console.log('Post error in customer page!');
-        }
-      });
+    this.props.searchRestaurant({
+      variables: {
+        search: data.val,
+        filter: option,
+      },
+    }).then((res) => {
+      console.log(res.data.searchRestaurant);
+      if (res.data.searchRestaurant.status === '200') {
+        this.props.updateResults(res.data.searchRestaurant);
+        this.props.history.push('/viewrestaurant');
+      } else {
+        console.log('fail search');
+      }
+    });
+    // axios.defaults.headers.common.authorization = localStorage.getItem('token');
+    // axios.post('http://localhost:3001/customer/customerpage', data)
+    //   .then((response) => {
+    //     console.log('Status Code : ', response.status);
+    //     if (response.status === 200) {
+    //       this.setState({
+    //         res: response.data,
+    //       });
+    //       const { res } = this.state;
+    //       this.props.updateResults(res);
+    //       this.props.history.push('/viewrestaurant');
+    //       console.log('Post success in customer page!');
+    //     } else {
+    //       console.log('Post error in customer page!');
+    //     }
+    //   });
+  }
+
+  handleChange = (e) => {
+    this.setState({
+      option: e.target.value,
+    });
   }
 
   render() {
-    const url = this.props.url;
+    const { option } = this.state;
+    const { url } = this.props;
     return (
       <div>
         <div style={{ textAlign: 'center' }}>
           <input placeholder="Search for Food.." id="searchh" />
           <button type="submit" onClick={this.search}>Search</button>
           <label>
-             <select id="persona">
-               <option value="Curbside Pick Up">Curbside Pick Up</option>
-               <option value="Dine in">Dine In</option>
-               <option value="Yelp Delivery">Yelp Delivery</option>
-               <option value="Location">Location</option>
-             </select>
-           </label>
+            <select id="persona" onChange={this.handleChange} value={option}>
+              <option value="Curbside Pick Up">Curbside Pick Up</option>
+              <option value="Dine in">Dine In</option>
+              <option value="Yelp Delivery">Yelp Delivery</option>
+              <option value="Location">Location</option>
+            </select>
+          </label>
         </div>
         <div id="header">
           <h1>{this.props.name}</h1>
@@ -199,7 +229,7 @@ class CustomerPage extends Component {
             {this.props.phone}
           </p>
         </div>
-        <img style={{position: 'relative', bottom: '500px', left: '20px'}} src={url} alt="" />
+        <img style={{ position: 'relative', bottom: '500px', left: '20px' }} src={url} alt="" />
         <ImageUploader
           withPreview
           withIcon
@@ -207,7 +237,9 @@ class CustomerPage extends Component {
           onChange={this.onDrop}
           imgExtension={['.jpg', '.gif', '.png']}
           maxFileSize={5242880}
-          style={{position: 'relative', bottom: '500px', right: '80px', width: '400px' }}
+          style={{
+            position: 'relative', bottom: '500px', right: '80px', width: '400px',
+          }}
         />
         <button style={{ position: 'relative', bottom: '500px', left: '60px' }} onClick={this.uploadImages} type="submit">Upload Image</button>
       </div>
@@ -244,4 +276,7 @@ const mapDispatchToProps = (dispatch) => ({
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(CustomerPage);
+export default compose(
+  graphql(searchRestaurant, { name: 'searchRestaurant' }),
+  connect(mapStateToProps, mapDispatchToProps),
+)(CustomerPage);

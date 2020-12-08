@@ -51,8 +51,43 @@ const addMenuItem = async (args) => {
   return response;
 };
 
+const searchRestaurant = async (args) => {
+  console.log('search');
+  const response = {};
+  let search = await Restaurants.find({ name: args.search, delivery_method: args.filter });
+  if (search.length > 0) {
+    console.log('search');
+    console.log(search);
+    response.content = search[0].name;
+    response.status = 200;
+    return response;
+  }
+  search = await Restaurants.find({ location: args.search, delivery_method: args.filter });
+  if (search.length > 0) {
+    console.log('search');
+    console.log(search);
+    response.content = search[0].name;
+    response.status = 200;
+    return response;
+  }
+  if (search.length > 0) {
+    search = await Restaurants.find({ 'menu.dish_name': args.search, delivery_method: args.filter });
+    if (search.length > 0) {
+      console.log('search');
+      console.log(search);
+      response.content = search[0].name;
+      response.status = 200;
+      return response;
+    }
+  }
+  response.content = search.name;
+  response.status = 400;
+  return response;
+};
+
 module.exports = {
   updateRestaurant,
   addMenuItem,
+  searchRestaurant,
 };
 // exports.updateRestaurant = updateRestaurant;

@@ -52,6 +52,15 @@ const addMenuItem = gql`
     }
 `;
 
+const searchRestaurant = gql`
+    mutation ($search: String, $filter: String){
+        searchRestaurant(search: $search, filter: $filter){
+            status
+            content
+        }
+    }
+`;
+
 export {
-  signUp, loginRestaurant, updateRestaurant, addMenuItem, loginCust, updateCust,
+  signUp, loginRestaurant, updateRestaurant, addMenuItem, loginCust, updateCust, searchRestaurant,
 };

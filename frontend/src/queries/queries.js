@@ -40,4 +40,6 @@ const filterOrders = gql`
     }
 `;
 
-export { menu, orders, filterOrders };
+export {
+  menu, orders, filterOrders,
+};
