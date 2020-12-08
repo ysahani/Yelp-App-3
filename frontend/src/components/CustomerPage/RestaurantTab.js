@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
+import { menu } from '../../queries/queries';
+import { placeOrder } from '../../mutations/mutations';
 
 class RestaurantTab extends Component {
   constructor(props) {
@@ -14,25 +18,26 @@ class RestaurantTab extends Component {
   }
 
   componentDidMount() {
+    console.log(this.props.data.menu);
     const { rName } = this.state;
     const data = {
       rname: rName,
     };
-    axios.post('http://localhost:3001/restaurant/menu', data)
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          // console.log(response.data);
-          this.setState({
-            res: response.data,
-          });
-          this.state.res.forEach((item) => {
-            console.log(item.name);
-          });
-        } else {
-          console.log('Post error in restaurant events!');
-        }
-      });
+    // axios.post('http://localhost:3001/restaurant/menu', data)
+    //   .then((response) => {
+    //     console.log('Status Code : ', response.status);
+    //     if (response.status === 200) {
+    //       // console.log(response.data);
+    //       this.setState({
+    //         res: response.data,
+    //       });
+    //       this.state.res.forEach((item) => {
+    //         console.log(item.name);
+    //       });
+    //     } else {
+    //       console.log('Post error in restaurant events!');
+    //     }
+    //   });
   }
 
   click = (e) => {
@@ -68,16 +73,30 @@ class RestaurantTab extends Component {
       real_datetime: datetime,
     };
 
-    axios.post('http://localhost:3001/customer/placeorder', data)
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          // console.log(response.data);
-          this.props.history.push('/customerorders');
-        } else {
-          console.log('Post error in placeorder!');
-        }
-      });
+    // axios.post('http://localhost:3001/customer/placeorder', data)
+    //   .then((response) => {
+    //     console.log('Status Code : ', response.status);
+    //     if (response.status === 200) {
+    //       // console.log(response.data);
+    //       this.props.history.push('/customerorders');
+    //     } else {
+    //       console.log('Post error in placeorder!');
+    //     }
+    //   });
+
+    this.props.placeOrder({
+      variables: {
+        cname: data.cName,
+        items: data.items,
+        r_name: data.rName,
+        date_time: data.date_time,
+        delivery_option: data.delivery_option,
+        real_datetime: data.real_datetime,
+      },
+    }).then((res) => {
+      this.props.history.push('/customerorders');
+      console.log(res.data.placeOrder);
+    });
   }
 
   handleChange = (e) => {
@@ -86,11 +105,13 @@ class RestaurantTab extends Component {
     });
   }
 
-  render() {
-    const { option } = this.state;
-    const { orderArr } = this.state;
-    const order = orderArr.join(',');
-    const contents = this.state.res.map((item) => (
+  displayMenu() {
+    const data = this.props.data;
+    console.log(data.menu);
+    if (data.loading) {
+      return (<div>Loading menu...</div>);
+    }
+    return data.menu.map((item) => (
       <div>
         <p>
           {item.dish_name}
@@ -100,6 +121,22 @@ class RestaurantTab extends Component {
         <button type="submit" id={item.dish_name} onClick={this.click}>Add to Cart</button>
       </div>
     ));
+  }
+
+  render() {
+    const { option } = this.state;
+    const { orderArr } = this.state;
+    const order = orderArr.join(',');
+    // const contents = this.state.res.map((item) => (
+    //   <div>
+    //     <p>
+    //       {item.dish_name}
+    //       /
+    //       {item.price}
+    //     </p>
+    //     <button type="submit" id={item.dish_name} onClick={this.click}>Add to Cart</button>
+    //   </div>
+    // ));
     return (
       <div>
         <div id="header">
@@ -120,7 +157,7 @@ class RestaurantTab extends Component {
           <br />
         </div>
         <div style={{ position: 'relative', left: '400px' }}>
-          {contents}
+          {this.displayMenu()}
         </div>
         <div style={{ position: 'relative', left: '770px', bottom: '150px' }}>
           <p>
@@ -145,4 +182,11 @@ const mapStateToProps = (state) => ({
   city: state.city,
   state: state.state,
 });
-export default connect(mapStateToProps)(RestaurantTab);
+
+export default compose(
+  connect(mapStateToProps),
+  graphql(placeOrder, { name: 'placeOrder' }),
+  graphql(menu, {
+    options: (props) => ({ variables: { name: props.rName } }),
+  }),
+)(RestaurantTab);

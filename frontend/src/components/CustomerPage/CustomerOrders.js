@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo';
+import { orders, customerOrders } from '../../queries/queries';
 
 class CustomerOrders extends Component {
   constructor(props) {
@@ -16,21 +19,22 @@ class CustomerOrders extends Component {
     const data = {
       cName: name,
     };
-    axios.post('http://localhost:3001/customer/customerorders', data)
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          // console.log(response.data);
-          this.setState({
-            res: response.data,
-          });
-          this.state.res.forEach((item) => {
-            console.log(item.name);
-          });
-        } else {
-          console.log('Post error in restaurant events!');
-        }
-      });
+    console.log(this.props.data);
+    // axios.post('http://localhost:3001/customer/customerorders', data)
+    //   .then((response) => {
+    //     console.log('Status Code : ', response.status);
+    //     if (response.status === 200) {
+    //       // console.log(response.data);
+    //       this.setState({
+    //         res: response.data,
+    //       });
+    //       this.state.res.forEach((item) => {
+    //         console.log(item.name);
+    //       });
+    //     } else {
+    //       console.log('Post error in restaurant events!');
+    //     }
+    //   });
   }
 
   cancel = (e) => {
@@ -71,6 +75,29 @@ class CustomerOrders extends Component {
           console.log('Post error in restaurant orders!');
         }
       });
+  }
+
+  displayOrders() {
+    const { data } = this.props;
+    if (data.loading) {
+      return (<div>Loading menu...</div>);
+    }
+    return data.customerOrders.map((item) => (
+      <tr>
+        <td>
+          {item.items}
+        </td>
+        <td>
+          {item.real_datetime}
+        </td>
+        <td>
+          {item.order_option}
+        </td>
+        <td>
+          <button id={item.items} type="submit" onClick={this.cancel} style={{ backgroundColor: 'red' }}>Cancel Order</button>
+        </td>
+      </tr>
+    ));
   }
 
   render() {
@@ -124,7 +151,7 @@ class CustomerOrders extends Component {
             backgroundColor: '#D2691E', color: 'white', position: 'relative', left: '450px',
           }}
           >
-            { contents }
+            { this.displayOrders() }
           </table>
         </div>
       </div>
@@ -139,4 +166,12 @@ const mapStateToProps = (state) => ({
   state: state.state,
 });
 
-export default connect(mapStateToProps)(CustomerOrders);
+export default compose(
+  connect(mapStateToProps),
+  graphql(orders, {
+    options: (props) => ({ variables: { name: props.name } }),
+  }),
+  graphql(customerOrders, {
+    options: (props) => ({ variables: { name: props.name } }),
+  }),
+)(CustomerOrders);

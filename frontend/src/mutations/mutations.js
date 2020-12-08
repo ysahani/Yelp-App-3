@@ -61,6 +61,15 @@ const searchRestaurant = gql`
     }
 `;
 
+const placeOrder = gql`
+    mutation ($cname: String, $items: String, $r_name: String, $date_time: String, $delivery_option: String, $real_datetime: String){
+        placeOrder(cname: $cname, items: $items, r_name: $r_name, date_time: $date_time, delivery_option: $delivery_option, real_datetime: $real_datetime){
+            status
+            content
+        }
+    }
+`;
+
 export {
-  signUp, loginRestaurant, updateRestaurant, addMenuItem, loginCust, updateCust, searchRestaurant,
+  signUp, loginRestaurant, updateRestaurant, addMenuItem, loginCust, updateCust, searchRestaurant, placeOrder,
 };

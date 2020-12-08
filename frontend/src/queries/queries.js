@@ -40,6 +40,20 @@ const filterOrders = gql`
     }
 `;
 
+const customerOrders = gql`
+    query($name: String) {
+        customerOrders(name: $name) {
+            items
+            r_name
+            date_time
+            delivery_option
+            real_datetime
+            order_option
+            cName
+        }
+    }
+`;
+
 export {
-  menu, orders, filterOrders,
+  menu, orders, filterOrders, customerOrders,
 };

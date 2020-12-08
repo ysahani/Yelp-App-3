@@ -4,7 +4,7 @@ const { signUp } = require('../mutations/SignUp');
 const { loginRestaurant } = require('../mutations/LoginRestaurant');
 const { loginCust } = require('../mutations/LoginCustomer');
 const { updateRestaurant, addMenuItem, searchRestaurant } = require('../mutations/Restaurant');
-const { updateCust } = require('../mutations/Customer');
+const { updateCust, placeOrder } = require('../mutations/Customer');
 const Restaurants = require('../Models/RestaurantModel');
 const Customers = require('../Models/CustomerModel');
 
@@ -123,6 +123,25 @@ const RootQuery = new GraphQLObjectType({
             });
           });
           console.log(data);
+          return data;
+        }
+      },
+    },
+
+    customerOrders: {
+      type: new GraphQLList(CustomerOrder),
+      args: { name: { type: GraphQLString } },
+      async resolve(parent, args) {
+        const order = await Customers.find({ name: args.name });
+        const data = [];
+        if (order) {
+          order.forEach((element) => {
+            element.orders.forEach((thing) => {
+              // console.log(thing);
+              data.push(thing);
+            });
+          });
+          // console.log(data);
           return data;
         }
       },
@@ -261,6 +280,22 @@ const Mutation = new GraphQLObjectType({
         return searchRestaurant(args);
       },
     },
+
+    placeOrder: {
+      type: StatusType,
+      args: {
+        cname: { type: GraphQLString },
+        items: { type: GraphQLString },
+        r_name: { type: GraphQLString },
+        date_time: { type: GraphQLString },
+        delivery_option: { type: GraphQLString },
+        real_datetime: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return placeOrder(args);
+      },
+    },
+
   },
 });
 

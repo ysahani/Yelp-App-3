@@ -24,4 +24,31 @@ const updateCust = async (args) => {
   return response;
 };
 
-exports.updateCust = updateCust;
+const placeOrder = async (args) => {
+  const response = {};
+  const myquery = { name: args.cname };
+  const newvalues = {
+    $push: {
+      orders: {
+        cname: args.cname, items: args.items, r_name: args.r_name, date_time: args.date_time, delivery_option: args.delivery_option, real_datetime: args.real_datetime, order_option: 'Order Recieved',
+      },
+    },
+  };
+  await Customers.updateOne(myquery, newvalues, (error, restaurant) => {
+    if (error) {
+      console.log(error);
+      response.status = 202;
+    }
+    if (restaurant) {
+      console.log('Placed order!');
+      response.status = 200;
+    }
+  });
+  return response;
+};
+
+module.exports = {
+  updateCust,
+  placeOrder,
+};
+// exports.updateCust = updateCust;
