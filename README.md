@@ -1,4 +1,4 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with GraphQL, MongoDB, React, and Node.
 
 ### How to Run the App  
 First, CD into the backend folder.  Type node index.js
